@@ -22,15 +22,15 @@ Sys.setlocale("LC_TIME", "IND")
 library(readxl)
 library(tidyverse)
 db <- read_excel("data_umm.xlsx")
+
 a <- db %>%
-  select(jalur, jenjang, jk, p1)
-b <- db %>%
-  select(jalur, jenjang, jk, p2) %>%
-  mutate( p1 = p2) %>%
-  select(-p2)
-db_minat <- rbind(a, b)
-db_minat <- na.omit(db_minat) %>%
-  group_by(jalur, jenjang, p1) %>%
+  select(jalur, jenjang, jk, p1, p2) %>%
+  pivot_longer(cols = p1 : p2, names_to = "pil", values_to = "prodi")
+
+a <- na.omit(a)
+
+db_minat <- na.omit(a) %>%
+  group_by(jalur, jenjang, prodi) %>%
   summarise(peminat = n())
 
 db_nama <- read_excel("data_lulus_diterima_umm.xlsx")
@@ -46,26 +46,26 @@ db_lulus <- db1 %>%
   group_by(jalur, jenjang, prodi) %>%
   summarise(lulus = n())
 
-db_terima <- na.omit(db1) %>%
+db_terima <- db1 %>%
   group_by(jalur, jenjang, prodi) %>%
   summarise(diterima = n())
 
 db_all <- db_minat %>%
-  left_join(db_lulus, by =c("jalur", "jenjang", "p1" = "prodi"))
+  left_join(db_lulus, by =c("jalur", "jenjang", "prodi"))
 
 db_all <- db_all %>%
-  left_join(db_terima, by =c("jalur", "jenjang", "p1" = "prodi"))
+  left_join(db_terima, by =c("jalur", "jenjang", "prodi"))
 
 kode <- read_excel("kode prodi siakad.xlsx")
 
 db_all <- db_all %>%
-  left_join(kode, by = c("jenjang", "p1" = "prodi")) %>%
-  select(jalur, jenjang, fakultas, p1, peminat, lulus, diterima)
+  left_join(kode, by = c("jenjang", "prodi")) %>%
+  select(jalur, jenjang, fakultas, prodi, peminat, lulus, diterima)
 
 db_all[is.na(db_all)] <- 0
 ```
 
-# UMM D3 (2022)
+# UMM D3
 
 ## Row
 
@@ -152,7 +152,7 @@ library(kableExtra)
 library(janitor)
 data <- db_all %>%
   filter(jalur == "UMMD3") %>%
-  arrange(fakultas, p1)
+  arrange(fakultas, prodi)
   
 data <- data[, -c(1:2)]
   
@@ -179,7 +179,7 @@ DT::datatable(data,
               #filter = "top")
 ```
 
-# JAJ (2022)
+# JAJ
 
 ## Row
 
@@ -266,7 +266,7 @@ library(kableExtra)
 library(janitor)
 data <- db_all %>%
   filter(jalur == "JAJ") %>%
-  arrange(fakultas, p1)
+  arrange(fakultas, prodi)
   
 data <- data[, -c(1:2)]
   
@@ -293,7 +293,7 @@ DT::datatable(data,
               #filter = "top")
 ```
 
-# ADIK (2022)
+# ADIK
 
 ## Row
 
@@ -380,7 +380,7 @@ library(kableExtra)
 library(janitor)
 data <- db_all %>%
   filter(jalur == "ADIK") %>%
-  arrange(fakultas, p1)
+  arrange(fakultas, prodi)
   
 data <- data[, -c(1:2)]
   
@@ -407,7 +407,7 @@ DT::datatable(data,
               #filter = "top")
 ```
 
-# PRESTASI (2022)
+# PRESTASI
 
 ## Row
 
@@ -494,7 +494,7 @@ library(kableExtra)
 library(janitor)
 data <- db_all %>%
   filter(jalur == "PRESTASI") %>%
-  arrange(fakultas, p1)
+  arrange(fakultas, prodi)
   
 data <- data[, -c(1:2)]
   
@@ -608,7 +608,7 @@ library(kableExtra)
 library(janitor)
 data <- db_all %>%
   filter(jalur == "S2") %>%
-  arrange(fakultas, p1)
+  arrange(fakultas, prodi)
   
 data <- data[, -c(1:2)]
   
@@ -722,7 +722,7 @@ library(kableExtra)
 library(janitor)
 data <- db_all %>%
   filter(jalur == "S3") %>%
-  arrange(fakultas, p1)
+  arrange(fakultas, prodi)
   
 data <- data[, -c(1:2)]
   
