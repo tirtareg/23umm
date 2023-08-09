@@ -47,6 +47,7 @@ db_lulus <- db1 %>%
   summarise(lulus = n())
 
 db_terima <- db1 %>%
+  filter(status == "Mahasiswa") %>%
   group_by(jalur, jenjang, prodi) %>%
   summarise(diterima = n())
 
